@@ -5,11 +5,12 @@ import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 public class StartBot {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws JAXBException {
 
         ApiContextInitializer.init();
 

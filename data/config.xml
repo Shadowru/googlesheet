@@ -1,0 +1,52 @@
+<bot>
+    <auth>
+        <username>testsheetbot</username>
+        <token>429028819:AAGxlYLNHHH3TeW5fCkCrYhhu3HmLmuRYl4</token>
+    </auth>
+    <menu>
+        <entry>
+            <key>topic1</key>
+            <value>
+                <name>Topic 1</name>
+                <text><![CDATA[
+                   Use the mark element to highlight text.
+                ]]></text>
+            </value>
+        </entry>
+        <entry>
+            <key>topic2</key>
+            <value>
+                <name>Topic 2</name>
+                <text>TOPIC 22222</text>
+            </value>
+        </entry>
+        <entry>
+            <key>topic3</key>
+            <value>
+                <name>Topic 3</name>
+                <text>TOPIC 3</text>
+            </value>
+        </entry>
+        <entry>
+            <key>topic4</key>
+            <value>
+                <name>Topic 4</name>
+                <text>TOPIC 4</text>
+            </value>
+        </entry>
+        <entry>
+            <key>timer</key>
+            <value>
+                <name>ТАЙМЕРЫ</name>
+                <text>Timers : </text>
+            </value>
+        </entry>
+        <entry>
+            <key>google_sheets</key>
+            <value>
+                <name>Get data from google</name>
+                <text>GOOGLE SHEETS</text>
+            </value>
+        </entry>
+    </menu>
+</bot>

@@ -1,6 +1,7 @@
 package org.shadow.bot.googlesheet;
 
 import org.shadow.bot.BotSettings;
+import org.shadow.bot.config.MenuEntry;
 import org.telegram.telegrambots.api.methods.ParseMode;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.*;
@@ -14,10 +15,12 @@ import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class GoogleSheetBot extends TelegramLongPollingBot {
 
@@ -25,9 +28,11 @@ public class GoogleSheetBot extends TelegramLongPollingBot {
     private String REQUEST_CONTACT = "Send me your contact info";
 
     private GoogleSheetAdapter googleSheetAdapter;
+    private BotSettings botSettings;
 
 
-    public GoogleSheetBot() throws IOException {
+    public GoogleSheetBot() throws IOException, JAXBException {
+        botSettings = new BotSettings();
         googleSheetAdapter = new GoogleSheetAdapter();
     }
 
@@ -62,10 +67,12 @@ public class GoogleSheetBot extends TelegramLongPollingBot {
                     }
 
                 } else {
-                    specialMessage = callbackData.toString().toUpperCase();
+                    Map<String, MenuEntry> menuEntryMap = botSettings.getMenu();
+                    MenuEntry menuEntry = menuEntryMap.get(callbackData);
+                    specialMessage = menuEntry.getText();
                 }
 
-                sendTextMessage(this, chatId, specialMessage);
+                sendHTMLMessage(this, chatId, specialMessage);
 
             } else if (update.hasMessage()) {
 
@@ -102,30 +109,42 @@ public class GoogleSheetBot extends TelegramLongPollingBot {
     }
 
     private void sendInlineButtons(AbsSender sender, Long chatId) throws TelegramApiException {
+
+        Map<String, MenuEntry> menuEntryMap = botSettings.getMenu();
+
         final SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(CHOOSE_TOPIC);
 
         InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-        rowInline.add(new InlineKeyboardButton().setText("Topic 1").setCallbackData("topic1"));
-        rowInline.add(new InlineKeyboardButton().setText("Topic 2").setCallbackData("topic2"));
-        rowInline.add(new InlineKeyboardButton().setText("Topic 3").setCallbackData("topic3"));
 
-        // Set the keyboard to the markup
-        rowsInline.add(rowInline);
+        List<InlineKeyboardButton> rowInline = null;
 
-        rowInline = new ArrayList<>();
+        int topicNo = 0;
 
-        rowInline.add(new InlineKeyboardButton().setText("Topic 4").setCallbackData("topic4"));
-        rowInline.add(new InlineKeyboardButton().setText("Topic 5").setCallbackData("topic5"));
-        rowInline.add(new InlineKeyboardButton().setText("Google sheets").setCallbackData("google_sheets"));
-        rowsInline.add(rowInline);
+        for (String keyTopic : menuEntryMap.keySet()) {
 
+            if (topicNo % 3 == 0) {
+                if (rowInline != null) {
+                    // Set the keyboard to the markup
+                    rowsInline.add(rowInline);
+                }
+                rowInline = new ArrayList<>();
+            }
+            MenuEntry menuEntry = menuEntryMap.get(keyTopic);
+            rowInline.add(new InlineKeyboardButton().setText(menuEntry.getName()).setCallbackData(keyTopic));
+            topicNo++;
+        }
+
+        if(rowInline.size() > 0)
+        {
+            rowsInline.add(rowInline);
+        }
         // Add it to the message
         markupInline.setKeyboard(rowsInline);
         sendMessage.setReplyMarkup(markupInline);
+        sendMessage.setParseMode(ParseMode.HTML);
 
         sender.sendMessage(sendMessage);
     }
@@ -182,6 +201,14 @@ public class GoogleSheetBot extends TelegramLongPollingBot {
         sender.sendMessage(sendMessage);
     }
 
+    private void sendHTMLMessage(AbsSender sender, Long chatId, String messageText) throws TelegramApiException {
+        final SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(messageText);
+        sendMessage.setParseMode(ParseMode.HTML);
+        sender.sendMessage(sendMessage);
+    }
+
     private Integer getUserId(final Update update) {
 
         if (update.getMessage() != null) {
@@ -198,11 +225,11 @@ public class GoogleSheetBot extends TelegramLongPollingBot {
     }
 
     public String getBotUsername() {
-        return BotSettings.getBotUserName();
+        return botSettings.getAuthInfo().getUsername();
     }
 
     public String getBotToken() {
-        return BotSettings.getBotToken();
+        return botSettings.getAuthInfo().getToken();
     }
 
     public void onClosing() {
