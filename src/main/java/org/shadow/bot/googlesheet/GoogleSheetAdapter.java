@@ -114,7 +114,7 @@ public class GoogleSheetAdapter {
         Sheets sheets = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME).build();
 
-        List<List<Object>> lists = readTable(sheets, "1U22_0HcIKJJ-hd6lfmc1WMUXnPlOjyyw0zhNx6jvTTU", "Sheet1");
+        List<List<Object>> lists = readTable(sheets, "1-zCqmmPu-QgveDS-OyUtEXBYr1LNubItvVFUZp6LIcA", "Лист1");
 
         boolean isHeader = true;
 
